@@ -30,7 +30,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://www.kindpng.com/picc/m/156-1564839_chinese-dragon-png-transparent-image-chinese-dragon-logo.png" alt="Lucky Dragon Logo">
+            <img src="https://pics.clipartpng.com/Chinese_Dragon_PNG_Clip_Art-3373.png" alt="Lucky Chinese Dragon Logo" style="height: 180px; max-width: 100%;">
             <h1>Push Your Luck Chinese Poker</h1>
         </div>
         <p><strong>Skip the hours of dealing and scoring with friends—simulate hundreds of hands in seconds and get right to the victory beers!</strong></p>
@@ -84,22 +84,18 @@
 
         function renderCards(cards) {
             return cards.map(c => {
-                const rankRaw = c.slice(0, -1);
-                const suit = c.slice(-1);
-
-                let rankStr = rankRaw;
-                if (rankRaw === 'J') rankStr = 'jack';
-                else if (rankRaw === 'Q') rankStr = 'queen';
-                else if (rankRaw === 'K') rankStr = 'king';
-                else if (rankRaw === 'A') rankStr = 'ace';
-
-                const suitStr = suit === 'h' ? 'hearts' :
-                                suit === 'd' ? 'diamonds' :
-                                suit === 'c' ? 'clubs' :
-                                'spades';
-
-                const src = `https://www.jfitz.com/cards/${rankStr}-of-${suitStr}.png`;
-                return `<img src="${src}" alt="${c}" class="card">`;
+                let rank = c.slice(0, -1);
+                const suit = c.slice(-1).toUpperCase();  // H D C S
+                if (rank === '10') rank = '0';
+                else if (rank === 'J') rank = 'J';
+                else if (rank === 'Q') rank = 'Q';
+                else if (rank === 'K') rank = 'K';
+                else if (rank === 'A') rank = 'A';
+                else rank = rank;  // 2-9
+        
+                const code = rank + suit;
+                const src = `https://deckofcardsapi.com/static/img/${code}.png`;
+                return `<img src="${src}" alt="${c}" class="card" onerror="this.src='https://deckofcardsapi.com/static/img/back.png';">`;  // fallback to card back if any rare issue
             }).join('');
         }
 
