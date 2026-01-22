@@ -11,6 +11,27 @@
         .container { max-width: 1200px; margin: 0 auto; }
         .header { margin-bottom: 20px; }
         
+        /* --- VIDEO RESPONSIVENESS FIX --- */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Maximum width on laptop */
+            margin: 30px auto; /* Centers the video */
+            aspect-ratio: 16 / 9; /* FORCES 16:9 Ratio (No black bars) */
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background: #000; /* Fallback background */
+        }
+        
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
         /* --- INPUTS & CONTROLS --- */
         input, select { padding: 8px; border-radius: 4px; border: none; font-size: 16px; text-align: center; }
         
@@ -28,8 +49,6 @@
         .sim-btn { background: linear-gradient(to bottom, #ff4444, #cc0000); color: white; border: 1px solid #fff; font-size: 18px; padding: 10px 30px; }
         .sim-btn:hover { background: linear-gradient(to bottom, #ff6666, #dd0000); }
 
-        #video { margin: 30px 0; }
-        
         /* --- RESULTS DASHBOARD --- */
         #finalscores { 
             background: rgba(0,0,0,0.6); 
@@ -171,8 +190,8 @@
             <h1>Push Your Luck Chinese Poker</h1>
         </div>
 
-        <div id="video" class="video-container">
-            <iframe src="https://www.youtube.com/embed/7tPYK6aNbjI?autoplay=1&mute=1&loop=1&playlist=7tPYK6aNbjI&rel=0&modestbranding=1" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; max-width: 600px; height: 340px;"></iframe>
+        <div class="video-wrapper">
+            <iframe src="https://www.youtube.com/embed/7tPYK6aNbjI?autoplay=1&mute=1&loop=1&playlist=7tPYK6aNbjI&rel=0&modestbranding=1" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
 
         <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
