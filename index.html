@@ -110,10 +110,78 @@
         /* Mobile: Stack to single column if screen is very small */
         @media (max-width: 600px) {
             .hand-detail { grid-template-columns: 1fr; }
+
+            /* --- LOADING OVERLAY & ANIMATION --- */
+        #loading-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: gold;
+        }
+    
+        .dealing-anim {
+            position: relative;
+            width: 60px;
+            height: 84px;
+            margin-bottom: 20px;
+        }
+    
+        .card-anim {
+            position: absolute;
+            width: 60px;
+            height: 84px;
+            background: #fff;
+            border-radius: 5px;
+            border: 2px solid #000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        
+        /* Create a red pattern for the back of the card */
+        .card-anim::after {
+            content: '';
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            background: repeating-linear-gradient(45deg, #cc0000, #cc0000 5px, #fff 5px, #fff 10px);
+        }
+    
+        /* Animation: Dealing 3 cards out */
+        .c1 { animation: deal1 1s infinite ease-in-out; }
+        .c2 { animation: deal2 1s infinite ease-in-out 0.2s; }
+        .c3 { animation: deal3 1s infinite ease-in-out 0.4s; }
+    
+        @keyframes deal1 {
+            0% { transform: translate(0, 0) rotate(0); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(-40px, 40px) rotate(-20deg); opacity: 0; }
+        }
+        @keyframes deal2 {
+            0% { transform: translate(0, 0) rotate(0); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(0px, 50px) rotate(0deg); opacity: 0; }
+        }
+        @keyframes deal3 {
+            0% { transform: translate(0, 0) rotate(0); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(40px, 40px) rotate(20deg); opacity: 0; }
+        }
         }
     </style>   
 </head>
 <body>
+    <div id="loading-overlay">
+        <div class="dealing-anim">
+            <div class="card-anim c1"></div>
+            <div class="card-anim c2"></div>
+            <div class="card-anim c3"></div>
+        </div>
+        <h2>Dealing Cards...</h2>
+        <p>Finding optimal splits...</p>
+    </div>
     <div class="container">
         <div class="header">
             <img src="https://pics.clipartpng.com/Chinese_Dragon_PNG_Clip_Art-3373.png" alt="Lucky Chinese Dragon Logo" style="height: 180px; max-width: 100%;">
@@ -143,7 +211,7 @@
                 <label style="font-size: 18px;">Number of hands: 
                     <input id="numhands" type="number" value="20" min="1" max="100" style="width: 60px; text-align: center;">
                 </label>
-                <button onclick="simulate()" class="sim-btn">SIMULATE!</button>
+                <button onclick="startSimulation()" class="sim-btn">SIMULATE!</button>
             </div>
             
             <div style="margin-bottom: 20px;">
@@ -299,10 +367,22 @@
 
         function setHands(n) {
             document.getElementById('numhands').value = n;
-            simulate();
+            startSimulation(); // Changed from simulate() to startSimulation()
         }
 
-        function simulate() {
+        // 1. The Trigger: Shows popup, then queues the heavy work
+        function startSimulation() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = 'flex'; // Show popup
+            
+            // Allow UI to repaint before freezing for calculations
+            setTimeout(() => {
+                simulateLogic();
+            }, 100);
+        }
+
+        // 2. The Heavy Logic (formerly "simulate")
+        function simulateLogic() {
             const numHands = parseInt(document.getElementById('numhands').value) || 20;
             const numP = parseInt(document.getElementById('numplayers').value);
             const nameInputs = document.querySelectorAll('.pname');
@@ -352,55 +432,72 @@
                 }
 
                 for (let p = 0; p < numP; p++) totalScores[p] += handPoints[p];
-                        handsHtml += `<div class="hand-detail">
-                            <div style="grid-column: 1/-1; text-align:left; color:#ccc; border-bottom:1px solid #444; margin-bottom:5px; padding-bottom:5px;">
-                                <strong>Hand ${h} Summary</strong>
-                            </div>`;
-                        
-                        for (let p = 0; p < numP; p++) {
-                            const { name, split: s } = players[p];
-                            
-                            handsHtml += `
-                            <div class="player-hand">
-                                <div class="player-header">
-                                    <span><strong>${name}</strong></span>
-                                    <span>
-                                        <span style="color:#fff; font-weight:bold;">${handPoints[p] > 0 ? '+' : ''}${handPoints[p]}</span>
-                                        <span style="font-size:0.7em; color:#aaa;">(${s.royalty * (numP - 1)} roy)</span>
-                                    </span>
-                                </div>
-                        
-                                <div class="hand-row">
-                                    <div class="row-label">Front</div>
-                                    <div class="cards">${renderCards(s.front)}</div>
-                                </div>
-                        
-                                <div class="hand-row">
-                                    <div class="row-label">Mid</div>
-                                    <div class="cards">${renderCards(s.middle)}</div>
-                                </div>
-                        
-                                <div class="hand-row">
-                                    <div class="row-label">Back</div>
-                                    <div class="cards">${renderCards(s.back)}</div>
-                                </div>
-                            </div>`;
-                        }
-                        handsHtml += `</div>`; // Close hand-detail
 
+                // --- RENDERING THE HAND ---
+                handsHtml += `<div class="hand-detail">
+                    <div style="grid-column: 1/-1; text-align:left; color:#ccc; border-bottom:1px solid #444; margin-bottom:5px; padding-bottom:5px;">
+                        <strong>Hand ${h} Summary</strong>
+                    </div>`;
+                
+                for (let p = 0; p < numP; p++) {
+                    const { name, split: s } = players[p];
+                    
+                    // CHANGED: "roy" -> "royalties"
+                    handsHtml += `
+                    <div class="player-hand">
+                        <div class="player-header">
+                            <span><strong>${name}</strong></span>
+                            <span>
+                                <span style="color:#fff; font-weight:bold;">${handPoints[p] > 0 ? '+' : ''}${handPoints[p]}</span>
+                                <span style="font-size:0.7em; color:#aaa;">(${s.royalty * (numP - 1)} royalties)</span>
+                            </span>
+                        </div>
+
+                        <div class="hand-row">
+                            <div class="row-label">Front</div>
+                            <div class="cards">${renderCards(s.front)}</div>
+                        </div>
+
+                        <div class="hand-row">
+                            <div class="row-label">Mid</div>
+                            <div class="cards">${renderCards(s.middle)}</div>
+                        </div>
+
+                        <div class="hand-row">
+                            <div class="row-label">Back</div>
+                            <div class="cards">${renderCards(s.back)}</div>
+                        </div>
+                    </div>`;
+                }
+                handsHtml += `</div>`;
             }
 
             const standings = names.map((name, i) => ({ name, score: totalScores[i] }));
-            standings.sort((a, b) => b.score - a.score);
-            let finalHtml = `<strong>Final Scores after ${numHands} hands:</strong><br><br>`;
-            standings.forEach(s => finalHtml += `<strong>${s.name}: ${s.score} points</strong><br>`);
-            finalHtml += `<br><em>Avg per hand:</em> ${standings.map(s => `${s.name}: ${(s.score / numHands).toFixed(1)}`).join(' | ')}`;
+                standings.sort((a, b) => b.score - a.score);
+                let finalHtml = `<strong>Final Scores after ${numHands} hands:</strong><br><br>`;
+                standings.forEach(s => finalHtml += `<strong>${s.name}: ${s.score} points</strong><br>`);
+                finalHtml += `<br><em>Avg per hand:</em> ${standings.map(s => `${s.name}: ${(s.score / numHands).toFixed(1)}`).join(' | ')}`;
+    
+                document.getElementById('finalscores').innerHTML = finalHtml;
+                document.getElementById('handslist').innerHTML = handsHtml;
+    
+                // HIDE LOADING OVERLAY
+                document.getElementById('loading-overlay').style.display = 'none';
+    
+                confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
+            }
 
-            document.getElementById('finalscores').innerHTML = finalHtml;
-            document.getElementById('handslist').innerHTML = handsHtml;
-
-            confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
-        }
+            const standings = names.map((name, i) => ({ name, score: totalScores[i] }));
+                standings.sort((a, b) => b.score - a.score);
+                let finalHtml = `<strong>Final Scores after ${numHands} hands:</strong><br><br>`;
+                standings.forEach(s => finalHtml += `<strong>${s.name}: ${s.score} points</strong><br>`);
+                finalHtml += `<br><em>Avg per hand:</em> ${standings.map(s => `${s.name}: ${(s.score / numHands).toFixed(1)}`).join(' | ')}`;
+    
+                document.getElementById('finalscores').innerHTML = finalHtml;
+                document.getElementById('handslist').innerHTML = handsHtml;
+    
+                confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
+            }
 
         updateNames();
     </script>
