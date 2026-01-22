@@ -48,20 +48,24 @@
         }
         
         .cards {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap; /* Wraps cards to prevent horizontal extend */
-            gap: 5px;
-            padding: 8px 0;
+            gap: 4px; /* Reduced from 5px */
+            padding: 6px 0;
         }
         
         .cards img {
-            height: 75px;
-            border-radius: 8px;
-            box-shadow: 3px 3px 8px rgba(0,0,0,0.7);
+            height: 40px; /* Half size – uniform base */
+            border-radius: 6px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.7);
             flex-shrink: 0;
         }
-        
+
+        /* Phone: Slightly smaller for extra fit */
+        @media (max-width: 768px) {
+            .cards img {
+                height: 35px;
+            }
+        }
+                
         /* Phone-specific optimizations */
         @media (max-width: 768px) {
             .hand-detail {
