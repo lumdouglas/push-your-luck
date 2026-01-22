@@ -61,7 +61,7 @@
 
         <div id="video" class="video-container">
             <!-- Replace YOUR_VIDEO_ID_HERE with your actual ID (e.g., 5lFkhholX1OQZT4q) -->
-            <iframe src="https://www.youtube.com/embed/7tPYK6aNbjI" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe src="https://www.youtube.com/embed/7tPYK6aNbjI?autoplay=1&mute=1&loop=1&playlist=YOUR_VIDEO_ID_HERE&rel=0&modestbranding=1" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
 
         <div>
@@ -222,7 +222,7 @@
             const num = parseInt(document.getElementById('numplayers').value);
             let html = '';
             for (let i = 1; i <= num; i++) {
-                html += `<label>Player ${i}: <input class="pname" value="Player ${i}"></label><br>`;
+                html += `<label>Player ${i}: <input class="pname" placeholder="Player ${i}"></label><br>`;
             }
             document.getElementById('namesdiv').innerHTML = html;
         }
@@ -237,7 +237,10 @@
             const numP = parseInt(document.getElementById('numplayers').value);
             const nameInputs = document.querySelectorAll('.pname');
             const names = [];
-            nameInputs.forEach(inp => names.push(inp.value.trim() || `Player ${names.length + 1}`));
+            nameInputs.forEach((inp, index) => {
+                const typed = inp.value.trim();
+                names.push(typed || `Player ${index + 1}`);
+            });
 
             const totalScores = new Array(numP).fill(0);
             let handsHtml = '';
