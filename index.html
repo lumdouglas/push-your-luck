@@ -21,7 +21,7 @@
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            background: #000; /* Fallback background */
+            background: #000; 
         }
         
         .video-wrapper iframe {
@@ -181,7 +181,7 @@
             <div class="card-anim c3"></div>
         </div>
         <h2>Dealing Cards...</h2>
-        <p>Finding optimal splits...</p>
+        <p>Optimizing for Max Points...</p>
     </div>
 
     <div class="container">
@@ -248,7 +248,7 @@
             return cards.map(c => {
                 let rank = c.slice(0, -1);
                 const suit = c.slice(-1).toUpperCase(); 
-                if (rank === '10') rank = '0'; // 2-char code fix
+                if (rank === '10') rank = '0'; 
                 const code = rank + suit;
                 const src = `https://deckofcardsapi.com/static/img/${code}.png`;
                 return `<img src="${src}" alt="${c}" onerror="this.src='https://deckofcardsapi.com/static/img/back.png';">`;
@@ -263,31 +263,59 @@
             rankNums.forEach(r => count[r] = (count[r] || 0) + 1);
             const countList = Object.values(count).sort((a, b) => b - a);
 
+            // FLUSH/STRAIGHT DETECTION (Only for 5 cards!)
+            // Front (3 cards) cannot be straight/flush per rules
             const suitArr = cards.map(c => c.slice(-1));
-            const isFlush = suitArr.length > 0 && suitArr.every(s => s === suitArr[0]);
+            const isFlush = len === 5 && suitArr.every(s => s === suitArr[0]);
 
             const uniqueSorted = [...new Set(sortedDesc)];
             const isStraightNormal = uniqueSorted.length === len && uniqueSorted[0] - uniqueSorted[len - 1] === len - 1;
             const isWheel = len === 5 && sortedDesc[0] === 14 && sortedDesc.includes(5) && sortedDesc.includes(4) && sortedDesc.includes(3) && sortedDesc.includes(2);
-            const isStraight = isStraightNormal || isWheel;
+            const isStraight = len === 5 && (isStraightNormal || isWheel);
 
-            let type = 0;
-            if (countList[0] === 4) type = 7;
-            else if (countList[0] === 3 && countList[1] === 2) type = 6;
-            else if (countList[0] === 3) type = 3;
-            else if (countList[0] === 2 && countList[1] === 2) type = 2;
-            else if (countList[0] === 2) type = 1;
+            let type = 0; // 0: High Card
+            if (countList[0] === 4) type = 7; // Quads
+            else if (countList[0] === 3 && countList[1] === 2) type = 6; // Full House
+            else if (countList[0] === 3) type = 3; // Trips
+            else if (countList[0] === 2 && countList[1] === 2) type = 2; // Two Pair
+            else if (countList[0] === 2) type = 1; // Pair
+            
             if (isStraight) type = Math.max(type, 4);
             if (isFlush) type = Math.max(type, 5);
-            if (isStraight && isFlush) type = (sortedDesc[0] === 14 && sortedDesc[4] === 10) ? 9 : 8;
+            if (isStraight && isFlush) type = (sortedDesc[0] === 14 && sortedDesc[4] === 10) ? 9 : 8; // Royal / SF
 
             const key = [type];
             const grouped = [];
-            for (let r = 14; r >= 2; r--) {
-                for (let i = 0; i < (count[r] || 0); i++) grouped.push(r);
+            
+            // Priority for comparison:
+            // 1. Counts (Quads/Trips/Pairs)
+            // 2. Kickers
+            
+            // Build groups based on counts
+            for(let c of countList) {
+                for(let r=14; r>=2; r--) {
+                    if(count[r] === c && !grouped.includes(r)) {
+                        // Add this rank to group (just once for the key reference)
+                        grouped.push(r);
+                    }
+                }
             }
-            while (grouped.length < 5) grouped.push(0);
-            key.push(...grouped.slice(0, 5));
+            
+            // If it is a Straight or Flush (where High Card matters more than pairs), use raw sorted
+            if (type === 4 || type === 5 || type >= 8) {
+                 key.push(...sortedDesc.slice(0,5));
+            } else {
+                 // For FH, Quads, Trips, Pairs, High Card -> use the grouped structure
+                 // Expand grouped ranks back into full card list for comparison
+                 const finalSort = [];
+                 for(let r of grouped) {
+                     for(let k=0; k < count[r]; k++) finalSort.push(r);
+                 }
+                 // Fill remainder (shouldn't be needed if logic is tight, but safety)
+                 while(finalSort.length < 5) finalSort.push(0);
+                 key.push(...finalSort.slice(0,5));
+            }
+
             return key;
         }
 
@@ -313,33 +341,62 @@
             return res;
         }
 
+        // --- OPTIMIZED ALGORITHM (Targeting Specific Rules) ---
         function getBestSplit(cards) {
             let bestRoyalty = -1;
-            let bestBackKey = [];
             let best = null;
+            
             const fronts = combinations(cards, 3);
+            
             for (const front of fronts) {
                 const rem1 = cards.filter(c => !front.includes(c));
                 const middles = combinations(rem1, 5);
+                
                 for (const middle of middles) {
                     const back = rem1.filter(c => !middle.includes(c));
+                    
                     const fKey = getRankKey(front);
                     const mKey = getRankKey(middle);
                     const bKey = getRankKey(back);
+
+                    // 1. NO FOULS: Front < Mid < Back
                     if (compareKeys(fKey, mKey) >= 0 || compareKeys(mKey, bKey) >= 0) continue;
                     
-                    // Simplified Royalty Calculation
-                    const royFront = fKey[0] === 3 ? 5 : 0; // Trips
-                    const royMiddle = mKey[0] >= 6 ? 5 : 0; // Full House+
-                    const royBack = bKey[0] >= 7 ? 5 : 0;   // Quads+
-                    const roy = royFront + royMiddle + royBack;
+                    // 2. ROYALTY CALCULATION (Strict +5 Rules)
+                    let roy = 0;
+
+                    // Front: Trips (+5)
+                    if (fKey[0] === 3) roy += 5;
+
+                    // Middle: Full House or Better (+5)
+                    // Types: 6=FH, 7=Quads, 8=SF, 9=Royal
+                    if (mKey[0] >= 6) roy += 5;
+
+                    // Back: Quads or Better (+5)
+                    // Types: 7=Quads, 8=SF, 9=Royal
+                    if (bKey[0] >= 7) roy += 5;
+
+                    // 3. SELECTION STRATEGY
+                    // Priority 1: Max Royalties
+                    // Priority 2: Strongest Back Hand
+                    // Priority 3: Strongest Middle Hand
                     
-                    let better = false;
-                    if (roy > bestRoyalty) better = true;
-                    else if (roy === bestRoyalty && compareKeys(bKey, bestBackKey) > 0) better = true;
-                    if (better || best === null) {
+                    let isBetter = false;
+
+                    if (roy > bestRoyalty) {
+                        isBetter = true;
+                    } else if (roy === bestRoyalty) {
+                        // Tie-breaker: Strongest Back
+                        const cmpBack = compareKeys(bKey, best.bKey);
+                        if (cmpBack > 0) isBetter = true;
+                        else if (cmpBack === 0) {
+                            // Tie-breaker: Strongest Middle
+                            if (compareKeys(mKey, best.mKey) > 0) isBetter = true;
+                        }
+                    }
+
+                    if (isBetter || best === null) {
                         bestRoyalty = roy;
-                        bestBackKey = bKey;
                         best = {
                             front: sortCardsDesc(front),
                             middle: sortCardsDesc(middle),
@@ -369,12 +426,8 @@
 
         function startSimulation() {
             const overlay = document.getElementById('loading-overlay');
-            overlay.style.display = 'flex'; // Show popup
-            
-            // Allow UI to repaint before freezing for calculations
-            setTimeout(() => {
-                simulateLogic();
-            }, 100);
+            overlay.style.display = 'flex'; 
+            setTimeout(() => { simulateLogic(); }, 100);
         }
 
         function simulateLogic() {
@@ -408,19 +461,31 @@
                 }
 
                 const handPoints = new Array(numP).fill(0);
+                
+                // Add Royalties (+5 per opponent)
                 for (let p = 0; p < numP; p++) {
                     handPoints[p] += players[p].split.royalty * (numP - 1);
                 }
+
+                // Compare Rows
                 for (let i = 0; i < numP; i++) {
                     for (let j = 0; j < numP; j++) {
                         if (i === j) continue;
                         let rowWins = 0;
                         let sweep = true;
+                        
+                        // Compare F, M, B
                         for (const r of ['f', 'm', 'b']) {
                             const cmp = compareKeys(players[i].split[r + 'Key'], players[j].split[r + 'Key']);
-                            if (cmp > 0) rowWins++;
+                            if (cmp > 0) rowWins++; // Win (+1)
+                            if (cmp < 0) {} // Loss (0 in this accumulation, equivalent to net +1 vs 0)
                             if (cmp <= 0) sweep = false;
                         }
+                        
+                        // SCORING:
+                        // 1 win = 1 pt. 
+                        // 2 wins = 2 pts. 
+                        // 3 wins (Sweep) = 6 pts (1+1+1 + 3 bonus).
                         let pts = rowWins === 3 ? 6 : rowWins;
                         handPoints[i] += pts;
                     }
@@ -428,7 +493,6 @@
 
                 for (let p = 0; p < numP; p++) totalScores[p] += handPoints[p];
 
-                // --- HTML GENERATION ---
                 handsHtml += `<div class="hand-detail">
                     <div style="grid-column: 1/-1; text-align:left; color:#ccc; border-bottom:1px solid #444; margin-bottom:5px; padding-bottom:5px;">
                         <strong>Hand ${h} Summary</strong>
@@ -443,7 +507,7 @@
                             <span><strong>${name}</strong></span>
                             <span>
                                 <span style="color:#fff; font-weight:bold;">${handPoints[p] > 0 ? '+' : ''}${handPoints[p]}</span>
-                                <span style="font-size:0.7em; color:#aaa;">(${s.royalty * (numP - 1)} royalties)</span>
+                                <span style="font-size:0.7em; color:#aaa;">(Royalty: ${s.royalty * (numP - 1)})</span>
                             </span>
                         </div>
 
@@ -474,14 +538,11 @@
 
             document.getElementById('finalscores').innerHTML = finalHtml;
             document.getElementById('handslist').innerHTML = handsHtml;
-
-            // Hide Overlay
             document.getElementById('loading-overlay').style.display = 'none';
 
             confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
         }
 
-        // Initialize Player Names
         updateNames();
     </script>
 </body>
