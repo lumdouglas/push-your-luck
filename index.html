@@ -19,11 +19,26 @@
         .hand-detail { background: rgba(255,255,255,0.1); border: 2px solid gold; margin: 30px auto; padding: 20px; max-width: 1100px; border-radius: 10px; }
         .player-hand { margin: 25px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; }
         .row-label { font-weight: bold; color: gold; margin: 10px 0 5px; }
-        .cards { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
-        .cards img { border-radius: 10px; box-shadow: 3px 3px 8px rgba(0,0,0,0.7); }
-        .dealt-cards img { height: 60px; }
-        .front-cards img { height: 70px; }
-        .middle-cards img, .back-cards img { height: 90px; }
+        .cards {
+            display: flex;
+            justify-content: flex-start; /* Left-align for natural scrolling */
+            flex-wrap: nowrap; /* Force single row */
+            gap: 6px;
+            overflow-x: auto; /* Horizontal scroll on small screens */
+            padding: 10px 0;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+        }
+        
+        .cards img {
+            height: 75px; /* Uniform smaller size */
+            border-radius: 8px;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.7);
+        }
+        
+        /* Remove these specific height rules (no longer needed) */
+        .dealt-cards img, .front-cards img, .middle-cards img, .back-cards img {
+            /* Delete these lines entirely */
+        }
         @media (max-width: 768px) { .header img { height: 120px; } }
         .video-container {
             position: relative;
@@ -255,7 +270,7 @@
                     const pcards = dealt.slice(p * 13, (p + 1) * 13);
                     const split = getBestSplit(pcards);
                     if (!split) { validHand = false; break; }
-                    players.push({ name: names[p], split, dealt: sortCardsDesc(pcards) });
+                    players.push({ name: names[p], split});
                 }
                 if (!validHand) {
                     handsHtml += `<div class="hand-detail"><strong>Hand ${h}: Rare foul—skipping.</strong></div>`;
@@ -288,8 +303,6 @@
                     const { name, split: s, dealt } = players[p];
                     handsHtml += `<div class="player-hand">
                         <strong>${name}: ${handPoints[p]} pts (royalties collected: ${s.royalty * (numP - 1)})</strong>
-                        <div class="row-label">Dealt (sorted high→low):</div>
-                        <div class="cards dealt-cards">${renderCards(dealt)}</div>
                         <div class="row-label">Front (weakest):</div>
                         <div class="cards front-cards">${renderCards(s.front)}</div>
                         <div class="row-label">Middle:</div>
