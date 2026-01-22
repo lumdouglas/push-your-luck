@@ -48,21 +48,21 @@
         }
         
         .cards {
-            gap: 4px; /* Reduced from 5px */
-            padding: 6px 0;
+            gap: 3px; /* Reduced from 5px */
+            padding: 4px 0;
         }
         
         .cards img {
-            height: 40px; /* Half size – uniform base */
-            border-radius: 6px;
-            box-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+            height: 20px; /* 50% smaller – uniform base */
+            border-radius: 4px;
+            box-shadow: 1px 1px 4px rgba(0,0,0,0.7);
             flex-shrink: 0;
         }
-
-        /* Phone: Slightly smaller for extra fit */
+        
+        /* Phone: Same size (no need for further reduction) */
         @media (max-width: 768px) {
             .cards img {
-                height: 35px;
+                height: 20px;
             }
         }
                 
@@ -330,7 +330,7 @@
                 for (let p = 0; p < numP; p++) {
                     const { name, split: s, dealt } = players[p];
                     handsHtml += `<div class="player-hand">
-                        <strong>${name}: ${handPoints[p]} pts (royalties collected: ${s.royalty * (numP - 1)})</strong>
+                        <strong>${name}: ${handPoints[p]} pts (royalties: ${s.royalty * (numP - 1)})</strong>
                         <div class="row-label">Front (weakest):</div>
                         <div class="cards front-cards">${renderCards(s.front)}</div>
                         <div class="row-label">Middle:</div>
