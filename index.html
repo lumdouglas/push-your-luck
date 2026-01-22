@@ -10,11 +10,20 @@
         h1 { color: #ffd700; text-shadow: 2px 2px 4px #000; margin: 10px; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        /* Header & Inputs */
-        .header { margin-bottom: 30px; }
-        button { background: linear-gradient(to bottom, #ffd700, #ffaa00); color: #000; border: 1px solid #fff; padding: 12px 24px; font-weight: bold; cursor: pointer; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        /* Input Styling */
+        input, select { padding: 8px; border-radius: 4px; border: none; font-size: 16px; }
+        
+        /* Player Names Spacing */
+        #namesdiv { margin-bottom: 25px; } /* Adds breathing room below player fields */
+        #namesdiv label { display: inline-block; margin: 5px; }
+    
+        /* Buttons */
+        button { background: linear-gradient(to bottom, #ffd700, #ffaa00); color: #000; border: 1px solid #fff; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); margin: 5px;}
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.4); }
-        input, select { padding: 10px; border-radius: 4px; border: none; }
+        
+        /* Simulate Button Specifics */
+        .sim-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        .sim-btn { background: linear-gradient(to bottom, #ff4444, #cc0000); color: white; border: 1px solid #fff; font-size: 18px; padding: 10px 30px; }
     
         /* Results Dashboard */
         #finalscores { 
@@ -23,97 +32,86 @@
             padding: 20px; 
             border-radius: 10px; 
             margin: 30px auto; 
-            max-width: 600px;
+            max-width: 800px;
         }
     
-        /* THE HAND GRID */
+        /* --- THE HAND GRID --- */
         .hand-detail {
             display: grid;
-            /* Auto-fit columns: roughly 350px wide per player */
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 20px;
-            margin: 40px 0;
-            padding: 20px;
+            /* STRICT 2-column grid. 
+               2 players = 1 row of 2. 
+               4 players = 2 rows of 2. */
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            margin: 40px auto;
+            padding: 15px;
             background: rgba(255,255,255,0.05);
             border-radius: 15px;
+            max-width: 1000px;
         }
     
         .player-hand {
             background: rgba(0,0,0,0.4);
             border: 1px solid #ffd700;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            gap: 8px; /* Space between rows */
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
     
-        /* Player Name & Score Header */
         .player-header {
             border-bottom: 1px solid rgba(255,215,0,0.3);
-            padding-bottom: 8px;
+            padding-bottom: 5px;
             margin-bottom: 5px;
             font-size: 1.1em;
             color: #ffd700;
+            display: flex;
+            justify-content: space-between;
         }
     
-        /* The Horizontal Row: Label Left | Cards Right */
+        /* Hand Rows: Tight Layout */
         .hand-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            background: rgba(0,0,0,0.2);
-            padding: 4px 8px;
-            border-radius: 6px;
+            /* "flex-start" keeps label and cards grouped to the left/center 
+               removing the big gap between them */
+            justify-content: flex-start; 
+            padding: 2px 0;
         }
     
         .row-label {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #ddd;
+            text-transform: uppercase;
+            width: 50px; /* Fixed small width to align cards */
             text-align: left;
-            width: 60px; /* Fixed width for alignment */
             flex-shrink: 0;
         }
     
-        /* Card Container */
         .cards {
             display: flex;
-            justify-content: flex-end;
-            padding-right: 10px; /* Space for the last card */
+            padding-left: 5px; /* Tiny gap between label and first card */
         }
     
-        /* The Cards Themselves */
+        /* Card Fanning */
         .cards img {
-            height: 55px; /* Standard readable size */
+            height: 50px;
             width: auto;
-            border-radius: 4px;
+            border-radius: 3px;
             box-shadow: -2px 0 5px rgba(0,0,0,0.5);
-            margin-left: -25px; /* NEGATIVE MARGIN creates the fan effect */
-            transition: transform 0.2s;
+            margin-left: -22px; /* Overlap */
             border: 1px solid #000;
             background: #fff;
         }
         
-        /* Hover effect to inspect cards */
-        .cards img:hover {
-            transform: translateY(-10px) scale(1.1);
-            z-index: 10;
-            margin-right: 10px; /* Push neighbors away slightly */
-        }
-        
-        /* Make the first card distinct so it doesn't get buried */
-        .cards img:first-child {
-            margin-left: 0;
-        }
+        .cards img:first-child { margin-left: 0; }
+        .cards img:hover { transform: translateY(-10px) scale(1.2); z-index: 10; margin-right: 15px; }
     
-        /* Mobile Tweaks */
+        /* Mobile: Stack to single column if screen is very small */
         @media (max-width: 600px) {
-            .hand-detail { grid-template-columns: 1fr; } /* 1 column on small phones */
-            .cards img { height: 45px; margin-left: -20px; }
+            .hand-detail { grid-template-columns: 1fr; }
         }
-    </style>    
+    </style>   
 </head>
 <body>
     <div class="container">
@@ -141,12 +139,20 @@
         <div id="namesdiv"></div>
 
         <div>
-            <label>Number of hands: <input id="numhands" type="number" value="20" min="1" max="100"></label><br>
-            <button onclick="setHands(10)">10 Hands</button>
-            <button onclick="setHands(15)">15 Hands</button>
-            <button onclick="setHands(20)">20 Hands</button>
-            <button onclick="setHands(25)">25 Hands</button>
-            <button onclick="simulate()">SIMULATE!</button>
+            <div class="sim-controls">
+                <label style="font-size: 18px;">Number of hands: 
+                    <input id="numhands" type="number" value="20" min="1" max="100" style="width: 60px; text-align: center;">
+                </label>
+                <button onclick="simulate()" class="sim-btn">SIMULATE!</button>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <span style="font-size: 14px; color: #ccc;">Presets: </span>
+                <button onclick="setHands(10)">10</button>
+                <button onclick="setHands(15)">15</button>
+                <button onclick="setHands(20)">20</button>
+                <button onclick="setHands(25)">25</button>
+            </div>
         </div>
 
         <div id="finalscores"></div>
@@ -347,39 +353,40 @@
 
                 for (let p = 0; p < numP; p++) totalScores[p] += handPoints[p];
                         handsHtml += `<div class="hand-detail">
-                        <div style="grid-column: 1/-1; text-align:left; color:#ccc; margin-bottom:10px;">
-                            <strong>Hand ${h} Summary</strong>
-                        </div>`;
-                    
-                    for (let p = 0; p < numP; p++) {
-                        const { name, split: s } = players[p];
+                            <div style="grid-column: 1/-1; text-align:left; color:#ccc; border-bottom:1px solid #444; margin-bottom:5px; padding-bottom:5px;">
+                                <strong>Hand ${h} Summary</strong>
+                            </div>`;
                         
-                        // NEW STRUCTURE:
-                        handsHtml += `
-                        <div class="player-hand">
-                            <div class="player-header">
-                                <strong>${name}</strong><br>
-                                <span style="font-size:0.9em; color:#fff;">${handPoints[p] > 0 ? '+' : ''}${handPoints[p]} pts</span>
-                                <span style="font-size:0.8em; color:#aaa;">(Royalty: ${s.royalty * (numP - 1)})</span>
-                            </div>
-                    
-                            <div class="hand-row">
-                                <div class="row-label">FRONT</div>
-                                <div class="cards">${renderCards(s.front)}</div>
-                            </div>
-                    
-                            <div class="hand-row">
-                                <div class="row-label">MID</div>
-                                <div class="cards">${renderCards(s.middle)}</div>
-                            </div>
-                    
-                            <div class="hand-row">
-                                <div class="row-label">BACK</div>
-                                <div class="cards">${renderCards(s.back)}</div>
-                            </div>
-                        </div>`;
-                    }
-                    handsHtml += `</div>`; // Close hand-detail
+                        for (let p = 0; p < numP; p++) {
+                            const { name, split: s } = players[p];
+                            
+                            handsHtml += `
+                            <div class="player-hand">
+                                <div class="player-header">
+                                    <span><strong>${name}</strong></span>
+                                    <span>
+                                        <span style="color:#fff; font-weight:bold;">${handPoints[p] > 0 ? '+' : ''}${handPoints[p]}</span>
+                                        <span style="font-size:0.7em; color:#aaa;">(${s.royalty * (numP - 1)} roy)</span>
+                                    </span>
+                                </div>
+                        
+                                <div class="hand-row">
+                                    <div class="row-label">Front</div>
+                                    <div class="cards">${renderCards(s.front)}</div>
+                                </div>
+                        
+                                <div class="hand-row">
+                                    <div class="row-label">Mid</div>
+                                    <div class="cards">${renderCards(s.middle)}</div>
+                                </div>
+                        
+                                <div class="hand-row">
+                                    <div class="row-label">Back</div>
+                                    <div class="cards">${renderCards(s.back)}</div>
+                                </div>
+                            </div>`;
+                        }
+                        handsHtml += `</div>`; // Close hand-detail
 
             }
 
