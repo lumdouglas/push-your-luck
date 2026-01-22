@@ -11,13 +11,13 @@
         .container { max-width: 1200px; margin: 0 auto; }
         .header { margin-bottom: 20px; }
         
-        /* --- VIDEO RESPONSIVENESS FIX --- */
+        /* --- VIDEO RESPONSIVENESS & UNMUTE OVERLAY --- */
         .video-wrapper {
             position: relative;
             width: 100%;
             max-width: 600px; /* Maximum width on laptop */
             margin: 30px auto; /* Centers the video */
-            aspect-ratio: 16 / 9; /* FORCES 16:9 Ratio (No black bars) */
+            aspect-ratio: 16 / 9; /* FORCES 16:9 Ratio */
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
@@ -26,25 +26,58 @@
         
         .video-wrapper iframe {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        /* The Unmute Button Layer */
+        #unmute-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.2); /* Slight dim */
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        
+        #unmute-overlay:hover {
+            background: rgba(0,0,0,0.4);
+        }
+
+        .unmute-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         /* --- INPUTS & CONTROLS --- */
         input, select { padding: 8px; border-radius: 4px; border: none; font-size: 16px; text-align: center; }
         
-        /* Player Name Inputs Spacing */
         #namesdiv { margin: 20px auto; }
         #namesdiv label { display: inline-block; margin: 8px; font-weight: bold; color: #ddd; }
         .pname { width: 150px; text-align: left; padding-left: 10px; }
 
-        /* Buttons */
         button { background: linear-gradient(to bottom, #ffd700, #ffaa00); color: #000; border: 1px solid #fff; padding: 10px 20px; font-weight: bold; cursor: pointer; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); margin: 5px;}
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.4); }
         
-        /* Simulate Button Group */
         .sim-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0 10px; }
         .sim-btn { background: linear-gradient(to bottom, #ff4444, #cc0000); color: white; border: 1px solid #fff; font-size: 18px; padding: 10px 30px; }
         .sim-btn:hover { background: linear-gradient(to bottom, #ff6666, #dd0000); }
@@ -62,7 +95,6 @@
         /* --- THE HAND GRID --- */
         .hand-detail {
             display: grid;
-            /* STRICT 2-column grid. 2 players = 1 row. 4 players = 2 rows. */
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
             gap: 20px;
             margin: 40px auto;
@@ -95,13 +127,12 @@
             align-items: center;
         }
 
-        /* Hand Rows: Tight Layout */
         .hand-row {
             display: flex;
             align-items: center;
             justify-content: flex-start; 
             padding: 2px 0;
-            height: 55px; /* Fixed height for consistency */
+            height: 55px; 
         }
 
         .row-label {
@@ -109,45 +140,29 @@
             font-weight: bold;
             color: #aaa;
             text-transform: uppercase;
-            width: 50px; /* Fixed width to align cards */
+            width: 50px; 
             text-align: left;
             flex-shrink: 0;
             letter-spacing: 1px;
         }
 
-        .cards {
-            display: flex;
-            padding-left: 10px;
-        }
+        .cards { display: flex; padding-left: 10px; }
 
-        /* Card Fanning & Styling */
         .cards img {
-            height: 50px;
-            width: auto;
-            border-radius: 3px;
+            height: 50px; width: auto; border-radius: 3px;
             box-shadow: -2px 0 5px rgba(0,0,0,0.5);
-            margin-left: -22px; /* This creates the overlap/fan */
-            border: 1px solid #000;
-            background: #fff;
+            margin-left: -22px; border: 1px solid #000; background: #fff;
             transition: transform 0.2s, margin 0.2s;
         }
-        
         .cards img:first-child { margin-left: 0; }
         .cards img:hover { transform: translateY(-12px) scale(1.2); z-index: 100; margin-right: 20px; box-shadow: 0 5px 10px rgba(0,0,0,0.8); }
 
         /* --- LOADING OVERLAY --- */
         #loading-overlay {
-            display: none; /* Hidden by default */
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            z-index: 9999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: gold;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 9999;
+            flex-direction: column; align-items: center; justify-content: center; color: gold;
         }
-
         .dealing-anim { position: relative; width: 60px; height: 84px; margin-bottom: 20px; }
         .card-anim {
             position: absolute; width: 60px; height: 84px; background: #fff;
@@ -165,7 +180,6 @@
         @keyframes deal2 { 0% { opacity:0; } 20% { opacity:1; } 100% { transform: translate(0px, 50px) rotate(0deg); opacity: 0; } }
         @keyframes deal3 { 0% { opacity:0; } 20% { opacity:1; } 100% { transform: translate(40px, 40px) rotate(20deg); opacity: 0; } }
 
-        /* Mobile Adjustments */
         @media (max-width: 600px) {
             .hand-detail { grid-template-columns: 1fr; }
             .cards img { height: 45px; margin-left: -20px; }
@@ -191,7 +205,16 @@
         </div>
 
         <div class="video-wrapper">
-            <iframe src="https://www.youtube.com/embed/JRlAMbTRdYo?autoplay=1&mute=1&loop=1&playlist=JRlAMbTRdYo&rel=0&modestbranding=1" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="ytplayer" src="https://www.youtube.com/embed/JRlAMbTRdYo?autoplay=1&mute=1&loop=1&playlist=JRlAMbTRdYo&rel=0&modestbranding=1" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            
+            <div id="unmute-overlay" onclick="unmuteVideo()">
+                <div class="unmute-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                    UNMUTE VIDEO
+                </div>
+            </div>
         </div>
 
         <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; max-width: 600px; margin: 0 auto;">
@@ -273,7 +296,6 @@
             const isStraight = len === 5 && (isStraightNormal || isWheel);
 
             // Hand Types: 
-            // 0:HighCard, 1:Pair, 2:TwoPair, 3:Trips, 4:Straight, 5:Flush, 6:FH, 7:Quads, 8:SF, 9:Royal
             let type = 0;
             if (countList[0] === 4) type = 7;
             else if (countList[0] === 3 && countList[1] === 2) type = 6;
@@ -286,7 +308,6 @@
             if (isStraight && isFlush) type = (sortedDesc[0] === 14 && sortedDesc[4] === 10) ? 9 : 8;
 
             const key = [type];
-            // Primary tie-breakers (Rank of Quads, Rank of Trips, Rank of Pairs)
             const grouped = [];
             for(let c of countList) {
                 for(let r=14; r>=2; r--) {
@@ -294,23 +315,13 @@
                 }
             }
             
-            // For Straight/Flush/HighCard, the sorted ranks matter directly
             if (type === 4 || type === 5 || type === 0 || type >= 8) {
                  key.push(...sortedDesc.slice(0,5));
             } else {
-                 // For Pair/Trips/FH/Quads, prioritize the group ranks, then kickers
                  const finalSort = [];
                  for(let r of grouped) {
                      for(let k=0; k < count[r]; k++) finalSort.push(r);
                  }
-                 // Add remaining kickers
-                 for(let r of sortedDesc) {
-                     if (!finalSort.includes(r) || finalSort.filter(x => x===r).length < count[r]) {
-                         // Only add if we haven't added all instances yet (simple check implies sorting logic)
-                         // Actually, simpler: Just filter out what we already pushed
-                     }
-                 }
-                 // Re-building clean kicker list
                  const used = [...finalSort];
                  const kickers = [];
                  for(let r of sortedDesc) {
@@ -320,14 +331,10 @@
                  }
                  key.push(...finalSort, ...kickers);
             }
-            // Ensure strictly 5 elements after type for easier comparison
             return key.slice(0, 6);
         }
 
-        // Helper to convert a hand Key into a raw numeric score for the Algorithm weights
         function getRawScore(key) {
-            // Key format: [Type, R1, R2, R3, R4, R5]
-            // We create a hex-like value: Type*1M + R1*10k ...
             let val = key[0] * 10000000000;
             if(key[1]) val += key[1] * 100000000;
             if(key[2]) val += key[2] * 1000000;
@@ -377,48 +384,27 @@
                     const mKey = getRankKey(middle);
                     const bKey = getRankKey(back);
 
-                    // PHASE 2: VALIDITY CHECK (Strictly Increasing)
                     if (compareKeys(fKey, mKey) >= 0 || compareKeys(mKey, bKey) >= 0) continue;
                     
-                    // --- SCORING ENGINE ---
-                    // We calculate a heuristic "AlgoScore" to determine the best hand
-                    // based on the user's specific priorities.
                     let algoScore = 0;
 
-                    // PHASE 1: THE ROYALTY SCAN (Weighted in Millions)
-                    // Back Quads (Type 7) -> Massive Priority
                     if (bKey[0] >= 7) algoScore += 5000000000000; 
-                    
-                    // Middle Full House (Type 6) -> High Priority
                     if (mKey[0] >= 6) algoScore += 1000000000000;
-
-                    // Front Trips (Type 3) -> High Priority
                     if (fKey[0] >= 3) algoScore += 500000000000;
 
-                    // PHASE 3: SCOOP OPTIMIZATION (Front-Loading)
-                    // If royalties are equal, prioritize Front Strength heavily (specifically Pairs).
-                    // We weight the Front RAW SCORE higher than Back/Mid raw scores.
-                    
                     const fRaw = getRawScore(fKey);
                     const mRaw = getRawScore(mKey);
                     const bRaw = getRawScore(bKey);
 
-                    // Bonus for ANY Pair in Front (The "Anti-Scoop" Layer)
-                    // If Front is Type 1 (Pair) or better, add significant weight
                     if (fKey[0] >= 1) algoScore += 50000000000;
 
-                    // PHASE 4: KICKER MANAGEMENT & TIE-BREAKERS
-                    // We weight the raw card values of the Front row higher than the Back row.
-                    // This satisfies: "Sacrifice Back strength to buff the Front"
-                    
-                    algoScore += (fRaw * 100); // Front kickers matter most
-                    algoScore += (bRaw * 10);  // Back strength matters 2nd
-                    algoScore += (mRaw * 1);   // Middle matters least ("Dump Trash")
+                    algoScore += (fRaw * 100); 
+                    algoScore += (bRaw * 10);  
+                    algoScore += (mRaw * 1);   
 
                     if (algoScore > maxAlgoScore) {
                         maxAlgoScore = algoScore;
                         
-                        // Calculate standard royalty points for display purposes
                         let displayRoy = 0;
                         if (fKey[0] === 3) displayRoy += 5;
                         if (mKey[0] >= 6) displayRoy += 5;
@@ -428,7 +414,7 @@
                             front: sortCardsDesc(front),
                             middle: sortCardsDesc(middle),
                             back: sortCardsDesc(back),
-                            royalty: displayRoy, // Standard +5 rules
+                            royalty: displayRoy,
                             fKey, mKey, bKey
                         };
                     }
@@ -438,6 +424,17 @@
         }
 
         // --- UI & SIMULATION HANDLING ---
+
+        function unmuteVideo() {
+            const iframe = document.getElementById('ytplayer');
+            const currentSrc = iframe.src;
+            // Reloads the iframe with mute=0. 
+            // Because this is triggered by a user click, autoplay with sound is allowed.
+            if (currentSrc.includes('mute=1')) {
+                iframe.src = currentSrc.replace('mute=1', 'mute=0');
+            }
+            document.getElementById('unmute-overlay').style.display = 'none';
+        }
 
         function updateNames() {
             const num = parseInt(document.getElementById('numplayers').value);
@@ -491,27 +488,23 @@
 
                 const handPoints = new Array(numP).fill(0);
                 
-                // Add Royalties (+5 per opponent)
                 for (let p = 0; p < numP; p++) {
                     handPoints[p] += players[p].split.royalty * (numP - 1);
                 }
 
-                // Compare Rows
                 for (let i = 0; i < numP; i++) {
                     for (let j = 0; j < numP; j++) {
                         if (i === j) continue;
                         let rowWins = 0;
                         let sweep = true;
                         
-                        // Compare F, M, B
                         for (const r of ['f', 'm', 'b']) {
                             const cmp = compareKeys(players[i].split[r + 'Key'], players[j].split[r + 'Key']);
-                            if (cmp > 0) rowWins++; // Win (+1)
+                            if (cmp > 0) rowWins++; 
                             if (cmp < 0) {} 
                             if (cmp <= 0) sweep = false;
                         }
                         
-                        // SCORING: 1=1pt, 2=2pts, 3=6pts (Sweep)
                         let pts = rowWins === 3 ? 6 : rowWins;
                         handPoints[i] += pts;
                     }
