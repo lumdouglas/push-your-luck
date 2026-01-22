@@ -7,8 +7,10 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background: #060; color: #fff; margin: 20px; }
-        h1 { color: gold; }
+        h1 { color: gold; margin: 10px; }
         .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 20px 0; }
+        .header img { height: 180px; } /* Adjust size as needed */
         input, select, button { padding: 10px; margin: 8px; font-size: 16px; border-radius: 5px; }
         button { background: gold; color: #000; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background: #ff0; }
@@ -22,16 +24,20 @@
         .dealt-cards img { height: 60px; }
         .front-cards img { height: 70px; }
         .middle-cards img, .back-cards img { height: 90px; }
+        @media (max-width: 768px) { .header img { height: 120px; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Push Your Luck Chinese Poker</h1>
+        <div class="header">
+            <img src="https://www.kindpng.com/picc/m/156-1564839_chinese-dragon-png-transparent-image-chinese-dragon-logo.png" alt="Lucky Dragon Logo">
+            <h1>Push Your Luck Chinese Poker</h1>
+        </div>
         <p><strong>Skip the hours of dealing and scoring with friends—simulate hundreds of hands in seconds and get right to the victory beers!</strong></p>
 
         <div id="video">
             <!-- Replace this src with your real YouTube/Vimeo embed URL -->
-            <iframe width="560" height="315" src="https://www.youtube.com/watch?v=7tPYK6aNbjI" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/YOUR_VIDEO_HERE" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
 
         <div>
