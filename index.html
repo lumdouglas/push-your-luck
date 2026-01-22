@@ -25,6 +25,30 @@
         .front-cards img { height: 70px; }
         .middle-cards img, .back-cards img { height: 90px; }
         @media (max-width: 768px) { .header img { height: 120px; } }
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio (standard for YouTube) */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            margin: 30px 0;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        @media (max-width: 768px) {
+            .video-container {
+                padding-bottom: 56.25%; /* Keeps ratio perfect on phones */
+            }
+        }
     </style>
 </head>
 <body>
@@ -35,9 +59,9 @@
         </div>
         <p><strong>Skip the hours of dealing and scoring with friends—simulate hundreds of hands in seconds and get right to the victory beers!</strong></p>
 
-        <div id="video">
-            <!-- Replace this src with your real YouTube/Vimeo embed URL -->
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/7tPYK6aNbjI" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <div id="video" class="video-container">
+            <!-- Replace YOUR_VIDEO_ID_HERE with your actual ID (e.g., 5lFkhholX1OQZT4q) -->
+            <iframe src="https://www.youtube.com/embed/7tPYK6aNbjI" title="Push Your Luck Ad" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
 
         <div>
