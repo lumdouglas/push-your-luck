@@ -18,73 +18,74 @@
         #finalscores { font-size: 28px; font-weight: bold; margin: 40px 0; background: rgba(0,0,0,0.4); padding: 20px; border-radius: 10px; }
         .hand-detail {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
             background: rgba(255,255,255,0.05);
-            border: 2px solid gold;
+            border: 3px solid gold; /* Thicker outline for emphasis */
             margin: 30px auto;
-            padding: 20px;
-            max-width: 1100px;
-            border-radius: 10px;
+            padding: 15px;
+            max-width: 100%;
+            box-sizing: border-box;
+            border-radius: 12px;
+            overflow: hidden; /* Prevents any inner overflow */
         }
         
         .player-hand {
-            border: 3px solid gold !important; /* Strong outline box */
+            border: 3px solid gold;
             background: rgba(0,0,0,0.5);
             border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(255,215,0,0.4); /* Gold glow */
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(255,215,0,0.4);
             text-align: center;
+            min-width: 0; /* Allows flex shrinking */
         }
         
         .row-label {
             font-weight: bold;
             color: gold;
-            margin: 15px 0 8px;
-            font-size: 18px;
+            margin: 12px 0 6px;
+            font-size: 17px;
         }
         
         .cards {
             display: flex;
             justify-content: center;
-            flex-wrap: nowrap;
-            gap: 6px;
-            overflow-x: auto;
-            padding: 10px 0;
-            -webkit-overflow-scrolling: touch;
+            flex-wrap: wrap; /* Wraps cards to prevent horizontal extend */
+            gap: 5px;
+            padding: 8px 0;
         }
         
         .cards img {
             height: 75px;
             border-radius: 8px;
             box-shadow: 3px 3px 8px rgba(0,0,0,0.7);
+            flex-shrink: 0;
         }
         
-        /* Phone-specific: Force max 2 columns */
+        /* Phone-specific optimizations */
         @media (max-width: 768px) {
             .hand-detail {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-                padding: 15px;
+                grid-template-columns: repeat(2, 1fr); /* Strict 2x2 for 4 players */
+                gap: 12px;
+                padding: 12px;
+                margin: 20px 10px; /* Side margins to prevent edge touch */
             }
             
             .player-hand {
-                padding: 15px;
+                padding: 12px;
             }
             
             .row-label {
-                font-size: 16px;
+                font-size: 15px;
+                margin: 10px 0 5px;
+            }
+            
+            .cards {
+                gap: 4px;
             }
             
             .cards img {
-                height: 70px; /* Slightly smaller on phone */
-            }
-        }
-        
-        /* Laptop/desktop: Try to fit all in one row */
-        @media (min-width: 769px) {
-            .hand-detail {
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                height: 65px; /* Smaller for perfect phone fit */
             }
         }
     </style>
